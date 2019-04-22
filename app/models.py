@@ -26,7 +26,7 @@ class Voting(models.Model):
     region = models.CharField(max_length=100)
     value1 = models.CharField(max_length=20)
     value2 = models.CharField(max_length=20)
-    time = models.ForeignKey(TimeCrawling, on_delete=models.SET_NULL, nuill=True, related_name='votings')
+    time = models.ForeignKey(TimeCrawling, on_delete=models.SET_NULL, null=True, related_name='votings')
 
     def __str__(self):
         return f'{self.region} : {self.value1}, {self.value2}'
