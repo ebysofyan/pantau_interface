@@ -16,6 +16,7 @@ class TimeCrawling(models.Model):
 
     class Meta:
         db_table = 'time_crawling'
+        ordering = ['-create_at']
 
 
 class Voting(models.Model):

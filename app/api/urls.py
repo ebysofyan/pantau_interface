@@ -1,5 +1,7 @@
-import requests
-import os
+from django.urls import path
+from . import views
 
-class Sender(object):
-    pass
+urlpatterns = [
+    path('', views.PemiluPublicApiGenericView.as_view()),
+    path('save', views.PemiluPostGenericView.as_view()),
+]
