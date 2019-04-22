@@ -1,0 +1,7 @@
+Django==2.1.7
+
+mysqlclient
+
+djangorestframework
+markdown
+django-filter
