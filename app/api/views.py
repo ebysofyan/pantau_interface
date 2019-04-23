@@ -155,7 +155,7 @@ class PemiluChartApiView(GenericAPIView):
         for q in queryset:
             for cat in tp_categories:
                 series.append({
-                    'name': q.create_at,
+                    'name': q.create_at.strftime('%m/%d/%y %H:%M:%S'),
                     'showInLegend': False,
                     'stack': cat,
                     'data': [int(v.value1) if cat == '01' else int(v.value2) for v in q.votings.all().order_by('region')]
