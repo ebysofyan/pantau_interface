@@ -94,7 +94,12 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        function createChart(response) {
+        var title = '. . . . .'
+        var bt_categories = []
+        var tp_categories = []
+        var series_data = []
+
+        function createChart() {
             var options = {
 
                 chart: {
@@ -102,14 +107,14 @@
                 },
 
                 title: {
-                    text: response.title
+                    text: title
                 },
 
                 xAxis: [{
-                    categories: response.bt_categories
+                    categories: bt_categories
                 },
                 {
-                    categories: response.tp_categories,
+                    categories: tp_categories,
                     opposite: true
                 }],
 
@@ -136,7 +141,7 @@
                     }
                 },
 
-                series: response.series
+                series: series_data
             };
 
             var onLegendClick = function (event) {
@@ -158,13 +163,20 @@
         };
 
         $(document).ready(function () {
+            createChart()
+
             $.ajax({
                 url: '/api/pemilu2019/chart',
                 type: 'GET',
                 async: true,
                 dataType: "json",
                 success: function (response) {
-                    createChart(response);
+                    title = response.title
+                    bt_categories = response.bt_categories
+                    tp_categories = response.tp_categories
+                    series_data = response.series
+
+                    createChart()
                 }
             });
         });
