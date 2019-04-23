@@ -147,6 +147,7 @@ class PemiluChartApiView(GenericAPIView):
     def formatter(self, queryset):
         bt_categories = []
         series = []
+        time_servers = []
 
         for (code, name) in REGION_LIST:
             bt_categories.append(name)
@@ -155,10 +156,11 @@ class PemiluChartApiView(GenericAPIView):
         for q in queryset:
             for cat in tp_categories:
                 series.append({
-                    'name': q.create_at.strftime('%m/%d/%y %H:%M:%S'),
+                    'name': f"Waktu server pantau : {q.create_at.strftime('%m-%d-%y %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
                     'showInLegend': False,
+                    'stacking': True,
                     'stack': cat,
-                    'data': [int(v.value1) if cat == '01' else int(v.value2) for v in q.votings.all().order_by('region')]
+                    'data': [float(v.value1) if cat == '01' else float(v.value2) for v in q.votings.all().order_by('region')]
                 })
 
         tp_categories = tp_categories * len(bt_categories)

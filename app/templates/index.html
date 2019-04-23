@@ -56,7 +56,7 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        var title = '. . . . .'
+        var title = 'Memuat data grafik . . .'
         var bt_categories = []
         var tp_categories = []
         var series_data = []
@@ -91,8 +91,7 @@
                 tooltip: {
                     formatter: function () {
                         return '<b>' + this.x + ' ' + this.series.options.stack + '</b><br/>'
-                            + '<p>Waktu server : ' + this.series.name + '</p>' + '<br/>'
-                            + '<p>Waktu server KPU : ' + this.series.name + '</p>' + '<br/>'
+                            + this.series.name + '<br/>'
                             + '<p><b>Total : ' + numberWithCommas(this.y) + '</p>'
                     }
                 },
