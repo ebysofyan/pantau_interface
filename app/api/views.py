@@ -112,8 +112,8 @@ class PemiluChartApiView(GenericAPIView):
             else:
                 qs = models.TimeCrawling.objects.all()
 
-            return qs[:100]
-        return models.TimeCrawling.objects.all()[:100]
+            return qs[:50]
+        return models.TimeCrawling.objects.all()[:50]
 
     def get_voting_queryset(self):
         if 'time' in self.request.GET:
