@@ -89,9 +89,11 @@
 
                 tooltip: {
                     formatter: function () {
+                        console.log(this.series)
                         return '<b>' + this.x + ' ' + this.series.options.stack + '</b><br/>'
                             + this.series.name + '<br/>'
-                            + '<p><b>Total : ' + numberWithCommas(this.y) + '</p>'
+                            + '<p><b>Total : ' + numberWithCommas(this.y) + '</p>' + '<br/>'
+                            + '<p><b>Total : ' + this.y + '</p>'
                     }
                 },
 

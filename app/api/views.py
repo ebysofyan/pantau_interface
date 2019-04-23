@@ -1,6 +1,7 @@
 from calendar import monthrange
 from datetime import date, datetime, timedelta
 
+from django.http import Http404
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import GenericAPIView, ListAPIView
@@ -77,7 +78,6 @@ class PemiluPublicApiGenericView(ListAPIView):
 
 
 class PemiluChartApiView(GenericAPIView):
-
     def get_start_date(self, sdt):
         """get_start_date"""
         return sdt.strftime('%Y-%m-%d') + ' 00:00'
@@ -89,78 +89,43 @@ class PemiluChartApiView(GenericAPIView):
     def get_queryset(self):
         if 'time' in self.request.GET:
             param = self.request.GET['time']
-            now = date.today()
+            start = date.today()
+            end = date.today()
 
             if param == 'today':
-                qs = models.TimeCrawling.objects.filter(create_at__range=[
-                    self.get_start_date(now),
-                    self.get_end_date(now),
-                ])
+                pass
             elif param == 'weeks':
-                week = now - timedelta(days=7)
-                qs = models.TimeCrawling.objects.filter(create_at__range=[
-                    self.get_start_date(week),
-                    self.get_end_date(now),
-                ])
+                start = start - timedelta(days=7)
             elif param == 'month':
-                days = monthrange(now.year, now.month)
-                month = now - timedelta(days=days[1])
-                qs = models.TimeCrawling.objects.filter(create_at__range=[
-                    self.get_start_date(month),
-                    self.get_end_date(now),
-                ])
+                days = monthrange(start.year, start.month)
+                start = start - timedelta(days=days[1])
             else:
-                qs = models.TimeCrawling.objects.all()
+                raise Http404
 
-            return qs[:15]
+            return models.TimeCrawling.objects.filter(create_at__range=[
+                self.get_start_date(start),
+                self.get_end_date(end),
+            ])
         return models.TimeCrawling.objects.all()[:15]
-
-    def get_voting_queryset(self):
-        if 'time' in self.request.GET:
-            param = self.request.GET['time']
-            now = date.today()
-
-            if param == 'today':
-                qs = models.Voting.objects.filter(time__create_at__range=[
-                    self.get_start_date(now),
-                    self.get_end_date(now),
-                ])
-            elif param == 'weeks':
-                week = now - timedelta(days=7)
-                qs = models.Voting.objects.filter(time__create_at__range=[
-                    self.get_start_date(week),
-                    self.get_end_date(now),
-                ])
-            elif param == 'month':
-                days = monthrange(now.year, now.month)
-                month = now - timedelta(days=days[1])
-                qs = models.Voting.objects.filter(time__create_at__range=[
-                    self.get_start_date(month),
-                    self.get_end_date(now),
-                ])
-            else:
-                qs = models.Voting.objects.all()
-
-            return qs
-        return models.Voting.objects.all()
 
     def formatter(self, queryset):
         bt_categories = []
         series = []
-        time_servers = []
 
-        for (code, name) in REGION_LIST:
+        for (_, name) in REGION_LIST:
             bt_categories.append(name)
 
         tp_categories = ['01', '02']
         for q in queryset:
             for cat in tp_categories:
                 series.append({
-                    'name': f"Waktu server pantau : {q.create_at.strftime('%m-%d-%y %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
+                    'name': f"Waktu server pantau : \
+                        {q.create_at.strftime('%Y-%m-%d %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
                     'showInLegend': False,
                     'stacking': True,
                     'stack': cat,
-                    'data': [float(v.value1) if cat == '01' else float(v.value2) for v in q.votings.all().order_by('region')]
+                    'data': [float(v.value1) if cat == '01' else float(v.value2)
+                             for v in q.votings.all().order_by('region')]
                 })
 
         tp_categories = tp_categories * len(bt_categories)
@@ -174,7 +139,7 @@ class PemiluChartApiView(GenericAPIView):
         series.append(series_end)
 
         return {
-            'title': 'Grafik aktifitas inputan data SINTUNG KPU',
+            'title': 'Grafik pemantauan SINTUNG KPU dari waktu ke waktu',
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories,
             'series': series
