@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime
+
 # Create your models here.
 
 
@@ -8,7 +8,7 @@ class TimeCrawling(models.Model):
     Time Crawling
     """
     time_server = models.CharField(max_length=45)
-    create_at = models.DateTimeField(auto_now_add=False, auto_now=False, default=datetime.now())
+    create_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     modify_at = models.DateTimeField(auto_now_add=False, auto_now=True)
 
     def __str__(self):
