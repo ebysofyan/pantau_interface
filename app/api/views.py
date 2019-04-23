@@ -112,8 +112,8 @@ class PemiluChartApiView(GenericAPIView):
             else:
                 qs = models.TimeCrawling.objects.all()
 
-            return qs
-        return models.TimeCrawling.objects.all()
+            return qs[:100]
+        return models.TimeCrawling.objects.all()[:100]
 
     def get_voting_queryset(self):
         if 'time' in self.request.GET:
@@ -158,7 +158,7 @@ class PemiluChartApiView(GenericAPIView):
                     'name': q.create_at.strftime('%m/%d/%y %H:%M:%S'),
                     'showInLegend': False,
                     'stack': cat,
-                    'data': [int(v.value1) if cat == '01' else int(v.value2) for v in q.votings.all()]
+                    'data': [int(v.value1) if cat == '01' else int(v.value2) for v in q.votings.all().order_by('region')]
                 })
 
         tp_categories = tp_categories * len(bt_categories)
@@ -172,8 +172,8 @@ class PemiluChartApiView(GenericAPIView):
         series.append(series_end)
 
         return {
-            'title': 'Data . . .',
-            'bt_categories': bt_categories,
+            'title': 'Grafik aktifitas inputan data SINTUNG KPU',
+            'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories,
             'series': series
         }
