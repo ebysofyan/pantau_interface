@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from . import serializers
 from .. import helpers, models
+from ..regions import REGION_LIST
 
 
 class PemiluPostGenericView(GenericAPIView):
@@ -73,3 +74,112 @@ class PemiluPublicApiGenericView(ListAPIView):
                 return models.TimeCrawling.objects.all()
             return qs
         return models.TimeCrawling.objects.all()
+
+
+class PemiluChartApiView(GenericAPIView):
+
+    def get_start_date(self, sdt):
+        """get_start_date"""
+        return sdt.strftime('%Y-%m-%d') + ' 00:00'
+
+    def get_end_date(self, edt):
+        """get_start_date"""
+        return edt.strftime('%Y-%m-%d') + ' 23:59'
+
+    def get_queryset(self):
+        if 'time' in self.request.GET:
+            param = self.request.GET['time']
+            now = date.today()
+
+            if param == 'today':
+                qs = models.TimeCrawling.objects.filter(create_at__range=[
+                    self.get_start_date(now),
+                    self.get_end_date(now),
+                ])
+            elif param == 'weeks':
+                week = now - timedelta(days=7)
+                qs = models.TimeCrawling.objects.filter(create_at__range=[
+                    self.get_start_date(week),
+                    self.get_end_date(now),
+                ])
+            elif param == 'month':
+                days = monthrange(now.year, now.month)
+                month = now - timedelta(days=days[1])
+                qs = models.TimeCrawling.objects.filter(create_at__range=[
+                    self.get_start_date(month),
+                    self.get_end_date(now),
+                ])
+            else:
+                qs = models.TimeCrawling.objects.all()
+
+            return qs
+        return models.TimeCrawling.objects.all()
+
+    def get_voting_queryset(self):
+        if 'time' in self.request.GET:
+            param = self.request.GET['time']
+            now = date.today()
+
+            if param == 'today':
+                qs = models.Voting.objects.filter(time__create_at__range=[
+                    self.get_start_date(now),
+                    self.get_end_date(now),
+                ])
+            elif param == 'weeks':
+                week = now - timedelta(days=7)
+                qs = models.Voting.objects.filter(time__create_at__range=[
+                    self.get_start_date(week),
+                    self.get_end_date(now),
+                ])
+            elif param == 'month':
+                days = monthrange(now.year, now.month)
+                month = now - timedelta(days=days[1])
+                qs = models.Voting.objects.filter(time__create_at__range=[
+                    self.get_start_date(month),
+                    self.get_end_date(now),
+                ])
+            else:
+                qs = models.Voting.objects.all()
+
+            return qs
+        return models.Voting.objects.all()
+
+    def formatter(self, queryset):
+        bt_categories = []
+        series = []
+
+        for (code, name) in REGION_LIST:
+            bt_categories.append(name)
+
+        tp_categories = ['01', '02']
+        for q in queryset:
+            for cat in tp_categories:
+                series.append({
+                    'name': q.create_at.strftime('%m/%d/%y %H:%M:%S'),
+                    'showInLegend': False,
+                    'stack': cat,
+                    'data': [int(v.value1) if cat == '01' else int(v.value2) for v in q.votings.all()]
+                })
+
+        tp_categories = tp_categories * len(bt_categories)
+        series_end = {
+            'name': '',
+            'showInLegend': False,
+            'stack': '02',
+            'data': [0 for i in tp_categories],
+            'xAxis': 1
+        }
+        series.append(series_end)
+
+        return {
+            'title': 'Data . . .',
+            'bt_categories': bt_categories,
+            'tp_categories': tp_categories,
+            'series': series
+        }
+
+    def get(self, request):
+        return Response(
+            data=self.formatter(self.get_queryset()),
+            status=status.HTTP_200_OK
+        )
