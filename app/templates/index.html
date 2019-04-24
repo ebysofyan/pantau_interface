@@ -57,10 +57,10 @@
                         style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto">
                     </div>
                 </div>
-                <div class="col s12 m12">
+                <!-- <div class="col s12 m12">
                     <div id="region_chart"
                         style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto"></div>
-                </div>
+                </div> -->
             </div>
         </div>
         <br><br>
@@ -154,7 +154,7 @@
 
         $(document).ready(function () {
             createChart('#general_chart')
-            createChart('#region_chart')
+            // createChart('#region_chart')
 
             $.ajax({
                 url: '/api/pemilu2019/chart',
@@ -168,7 +168,7 @@
                     series_data = response.series
 
                     createChart('#general_chart')
-                    createChart('#region_chart')
+                    // createChart('#region_chart')
                 }
             });
         });
