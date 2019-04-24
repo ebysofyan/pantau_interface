@@ -87,7 +87,8 @@ DATABASES = {
         'NAME': 'pemilu2019',
         'USER': 'root',
         'PASSWORD': os.environ['MYSQL_PASSWORD'],
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        # 'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'HOST': '35.187.254.66',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
