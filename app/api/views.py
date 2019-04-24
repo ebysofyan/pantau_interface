@@ -177,7 +177,7 @@ class PemiluChartRangeApiView(GenericAPIView):
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series,
-            'total_title': 'Total suara'
+            'total_title': 'Pertambahan suara'
         }
 
     def get(self, request):
