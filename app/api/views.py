@@ -96,33 +96,11 @@ class PemiluChartRangeApiView(GenericAPIView):
             else:
                 raise Http404
 
-            return models.TimeCrawling.objects.filter(create_at__range=[
+            return models.TimeCrawling.objects.distinct('time_server').filter(create_at__range=[
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.all()[:30]
-
-    def get_votings_queryset(self):
-        if 'time' in self.request.GET:
-            param = self.request.GET['time']
-            start = date.today()
-            end = date.today()
-
-            if param == 'today':
-                pass
-            elif param == 'weeks':
-                start = start - timedelta(days=7)
-            elif param == 'month':
-                days = monthrange(start.year, start.month)
-                start = start - timedelta(days=days[1])
-            else:
-                raise Http404
-
-            return models.Voting.objects.filter(time__create_at__range=[
-                self.get_start_date(start),
-                self.get_end_date(end),
-            ])
-        return models.Voting.objects.all()[:30]
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:50]
 
     def separate_series(self, data):
         series_1 = []
@@ -162,7 +140,9 @@ class PemiluChartRangeApiView(GenericAPIView):
             bt_categories.append(name)
 
         tp_categories = ['01', '02']
-        for q in queryset:
+
+        queryset = {x.time_server: x for x in queryset}
+        for k, q in queryset.items():
             for cat in tp_categories:
                 series.append({
                     'name': f"Waktu server pantau : \
@@ -230,11 +210,11 @@ class PemiluChartAccumulationApiView(GenericAPIView):
             else:
                 raise Http404
 
-            return models.TimeCrawling.objects.filter(create_at__range=[
+            return models.TimeCrawling.objects.distinct('time_server').filter(create_at__range=[
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.all()[:15]
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:50]
 
     def formatter(self, queryset):
         bt_categories = []
@@ -244,7 +224,9 @@ class PemiluChartAccumulationApiView(GenericAPIView):
             bt_categories.append(name)
 
         tp_categories = ['01', '02']
-        for q in queryset:
+
+        queryset = {x.time_server: x for x in queryset}
+        for k, q in queryset.items():
             for cat in tp_categories:
                 series.append({
                     'name': f"Waktu server pantau : \
