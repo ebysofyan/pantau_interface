@@ -100,7 +100,7 @@ class PemiluChartApiView(GenericAPIView):
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.all()[:50]
+        return models.TimeCrawling.objects.all()[:30]
 
     def get_votings_queryset(self):
         if 'time' in self.request.GET:
@@ -122,7 +122,7 @@ class PemiluChartApiView(GenericAPIView):
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.Voting.objects.all()[:50]
+        return models.Voting.objects.all()[:30]
 
     def separate_series(self, data):
         series_1 = []
