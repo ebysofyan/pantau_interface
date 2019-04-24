@@ -171,9 +171,7 @@ class PemiluChartRangeApiView(GenericAPIView):
                     'stacking': True,
                     'stack': cat,
                     'data': [float(v.value1) if cat == '01' else float(v.value2)
-                             for v in q.votings.all().order_by('region')],
-                    'original_data': [float(v.value1) if cat == '01' else float(v.value2)
-                                      for v in q.votings.all().order_by('region')]
+                             for v in q.votings.all().order_by('region')]
                 })
 
         series_data_1 = []
@@ -195,10 +193,11 @@ class PemiluChartRangeApiView(GenericAPIView):
         newer_series = s1_new + s2_new
 
         return {
-            'title': 'Grafik pemantauan SINTUNG KPU dari waktu ke waktu',
+            'title': 'Grafik pemantauan perkembangan suara SINTUNG KPU dari waktu ke waktu',
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
-            'series': newer_series
+            'series': newer_series,
+            'total_title': 'Total suara'
         }
 
     def get(self, request):
@@ -268,10 +267,11 @@ class PemiluChartAccumulationApiView(GenericAPIView):
         series.append(series_end)
 
         return {
-            'title': 'Grafik pemantauan SINTUNG KPU dari waktu ke waktu',
+            'title': 'Grafik pemantauan perolehan suara SINTUNG KPU dari waktu ke waktu',
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories,
-            'series': series
+            'series': series,
+            'total_title': 'Total suara'
         }
 
     def get(self, request):
