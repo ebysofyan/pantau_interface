@@ -9,7 +9,7 @@
 
     <!-- CSS  -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link href="{% static 'css/app.css' %}" type="text/css" rel="stylesheet" media="screen,projection" />
 
     <style>
@@ -18,7 +18,7 @@
             position: fixed;
             font-size: 16px;
             text-align: right;
-            top: 60px;
+            top: 50px;
             z-index: 1;
             font-weight: 400;
             background: white;
@@ -26,59 +26,77 @@
             padding-top: 16px;
             padding-bottom: 16px;
         }
+
+        ul>li>.small-text {
+            font-size: 13px;
+            color: dimgray;
+        }
     </style>
 </head>
 
 <body>
-    <div class="navbar-fixed">
-        <nav class="light-blue darken-3" role="navigation">
-            <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo"
-                    style="font-size: 16px;">Pantau Sintung KPU</a>
-                <ul class="right hide-on-med-and-down">
-                    <li><a href="#">Tentang</a></li>
-                </ul>
+    {% include "navbar.html" %}
 
-                <ul id="nav-mobile" class="sidenav">
-                    <li><a href="#">Info</a></li>
-                </ul>
-                <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <div class="container-fluid" style="padding-top: 125px">
+        <div class="row">
+            <div id="clock_display" class="clock" onload="showTime()"></div>
+            <div class="col-md-12 col-sm-12" style="margin-bottom: 24px;" id="total_suara">
+                <div id="accumulation_chart"
+                    style="min-width: 310px; width: 100%; height: calc(100vh - 125px); margin: 0 auto">
+                </div>
             </div>
-        </nav>
-    </div>
-
-    <div>
-        <div class="section">
-
-            <!--   Icon Section   -->
-            <div class="row">
-                <div id="clock_display" class="clock" onload="showTime()"></div>
-                <div class="col s12 m12" style="margin-bottom: 24px; margin-top: 55px;">
-                    <div id="range_chart"
-                        style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto">
-                    </div>
+            <div class="col-md-12 col-sm-12" style="margin-bottom: 24px; margin-top: 55px;" id="total_satudua">
+                <div id="range_chart"
+                    style="min-width: 310px; width: 100%; height: calc(100vh - 125px); margin: 0 auto">
                 </div>
-                <div class="col s12 m12" style="margin-bottom: 24px; margin-top: 55px;">
-                    <div id="accumulation_chart"
-                        style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto">
-                    </div>
-                </div>
-                <!-- <div class="col s12 m12">
+            </div>
+            <!-- <div class="col s12 m12">
                     <div id="region_chart"
                         style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto"></div>
                 </div> -->
-            </div>
         </div>
-        <br><br>
     </div>
 
     <!--  Scripts-->
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{% static 'js/jquery.easing.min.js' %}"></script>
     <script src="{% static 'js/app.js' %}"></script>
     <script src="{% static 'js/clock.js' %}"></script>
     <script src="{% static 'js/chart.js' %}"></script>
+    <script>
+        (function ($) {
+            "use strict"; // Start of use strict
+
+            // Smooth scrolling using jQuery easing
+            $('a.js-scroll-trigger[href*="#"]:not([href="#"])').click(function () {
+                if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: (target.offset().top - 125)
+                        }, 1000, "easeInOutExpo");
+                        return false;
+                    }
+                }
+            });
+
+            // Closes responsive menu when a scroll trigger link is clicked
+            $('.js-scroll-trigger').click(function () {
+                $('.navbar-collapse').collapse('hide');
+            });
+
+            // Activate scrollspy to add active class to navbar items on scroll
+            $('body').scrollspy({
+                target: '#mainNav',
+                offset: 125
+            });
+
+        })(jQuery); // End of use strict
+    </script>
 </body>
 
 </html>
