@@ -73,7 +73,7 @@ class PemiluPublicApiGenericView(ListAPIView):
         return models.TimeCrawling.objects.all()
 
 
-class PemiluChartApiView(GenericAPIView):
+class PemiluChartRangeApiView(GenericAPIView):
     def get_start_date(self, sdt):
         return sdt.strftime('%Y-%m-%d') + ' 00:00'
 
@@ -199,6 +199,79 @@ class PemiluChartApiView(GenericAPIView):
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series
+        }
+
+    def get(self, request):
+        return Response(
+            data=self.formatter(self.get_queryset()),
+            status=status.HTTP_200_OK
+        )
+
+
+class PemiluChartAccumulationApiView(GenericAPIView):
+    def get_start_date(self, sdt):
+        return sdt.strftime('%Y-%m-%d') + ' 00:00'
+
+    def get_end_date(self, edt):
+        return edt.strftime('%Y-%m-%d') + ' 23:59'
+
+    def get_queryset(self):
+        if 'time' in self.request.GET:
+            param = self.request.GET['time']
+            start = date.today()
+            end = date.today()
+
+            if param == 'today':
+                pass
+            elif param == 'weeks':
+                start = start - timedelta(days=7)
+            elif param == 'month':
+                days = monthrange(start.year, start.month)
+                start = start - timedelta(days=days[1])
+            else:
+                raise Http404
+
+            return models.TimeCrawling.objects.filter(create_at__range=[
+                self.get_start_date(start),
+                self.get_end_date(end),
+            ])
+        return models.TimeCrawling.objects.all()[:15]
+
+    def formatter(self, queryset):
+        bt_categories = []
+        series = []
+
+        for (_, name) in REGION_LIST:
+            bt_categories.append(name)
+
+        tp_categories = ['01', '02']
+        for q in queryset:
+            for cat in tp_categories:
+                series.append({
+                    'name': f"Waktu server pantau : \
+                        {q.create_at.strftime('%Y-%m-%d %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
+                    'showInLegend': False,
+                    'stacking': True,
+                    'stack': cat,
+                    'data': [float(v.value1) if cat == '01' else float(v.value2)
+                             for v in q.votings.all().order_by('region')]
+                })
+
+        tp_categories = tp_categories * len(bt_categories)
+        series_end = {
+            'name': '',
+            'showInLegend': False,
+            'stack': '02',
+            'data': [0 for i in tp_categories],
+            'xAxis': 1
+        }
+        series.append(series_end)
+
+        return {
+            'title': 'Grafik pemantauan SINTUNG KPU dari waktu ke waktu',
+            'bt_categories': sorted(bt_categories),
+            'tp_categories': tp_categories,
+            'series': series
         }
 
     def get(self, request):

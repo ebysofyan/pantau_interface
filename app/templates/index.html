@@ -53,7 +53,12 @@
             <div class="row">
                 <div id="clock_display" class="clock" onload="showTime()"></div>
                 <div class="col s12 m12" style="margin-bottom: 24px; margin-top: 55px;">
-                    <div id="general_chart"
+                    <div id="range_chart"
+                        style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto">
+                    </div>
+                </div>
+                <div class="col s12 m12" style="margin-bottom: 24px; margin-top: 55px;">
+                    <div id="accumulation_chart"
                         style="min-width: 310px; width: 100%; height: calc(100vh - 100px); margin: 0 auto">
                     </div>
                 </div>
@@ -82,12 +87,7 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        var title = 'Memuat data grafik . . .'
-        var bt_categories = []
-        var tp_categories = []
-        var series_data = []
-
-        function createChart(chartId) {
+        function createChart(chartId, response = {}, title = "Memuat data grafik . . .") {
             var options = {
 
                 chart: {
@@ -99,10 +99,10 @@
                 },
 
                 xAxis: [{
-                    categories: bt_categories
+                    categories: typeof response.bt_categories === 'undefined' ? [] : response.bt_categories
                 },
                 {
-                    categories: tp_categories,
+                    categories: typeof response.tp_categories === 'undefined' ? [] : response.tp_categories,
                     opposite: true
                 }],
 
@@ -131,7 +131,7 @@
                     }
                 },
 
-                series: series_data
+                series: typeof response.series === 'undefined' ? [] : response.series
             };
 
             var onLegendClick = function (event) {
@@ -152,25 +152,24 @@
             $(chartId).highcharts(options);
         };
 
-        $(document).ready(function () {
-            createChart('#general_chart')
-            // createChart('#region_chart')
+        function requestJson(chartId, url) {
+            createChart(chartId)
 
             $.ajax({
-                url: '/api/pemilu2019/chart',
+                url: url,
                 type: 'GET',
                 async: true,
                 dataType: "json",
                 success: function (response) {
-                    title = response.title
-                    bt_categories = response.bt_categories
-                    tp_categories = response.tp_categories
-                    series_data = response.series
 
-                    createChart('#general_chart')
-                    // createChart('#region_chart')
+                    createChart(chartId, response, response.title)
                 }
             });
+        }
+
+        $(document).ready(function () {
+            requestJson("#range_chart", "/api/pemilu2019/chart/range")
+            requestJson("#accumulation_chart", "/api/pemilu2019/chart/acc")
         });
     </script>
 </body>
