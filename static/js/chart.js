@@ -84,5 +84,6 @@ function requestJson(chartId, url) {
 
 $(document).ready(function () {
     requestJson("#range_chart", "/api/pemilu2019/chart/range")
+    requestJson("#range_merge_chart", "/api/pemilu2019/chart/range/merge")
     requestJson("#accumulation_chart", "/api/pemilu2019/chart/acc")
 });
