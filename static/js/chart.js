@@ -83,18 +83,46 @@ function createStackbarChart(chartId, response = {}, title = "Memuat data grafik
 };
 
 function createPieChart(chartId, response = {}, title = "Memuat data grafik . . .") {
+    Highcharts.setOptions({
+        colors: ['#ffc107', '#17a2b8', '#28a745', '#dc3545', '#6f42c1', '#e83e8c']
+    });
     Highcharts.chart(chartId, {
         chart: {
             plotBackgroundColor: null,
             plotBorderWidth: null,
             plotShadow: false,
+            events: {
+                load: function () {
+                    var label = this.renderer.label("Progress")
+                        .css({
+                            width: '400px',
+                            fontSize: '12px'
+                        })
+                        .attr({
+                            'stroke': 'black',
+                            'stroke-width': 1,
+                            'r': 2,
+                            'padding': 5
+                        })
+                        .add();
+
+                    label.align(Highcharts.extend(label.getBBox(), {
+                        align: 'center',
+                        x: 20, // offset
+                        verticalAlign: 'bottom',
+                        y: -20, // offset
+                    }), null, 'spacingBox');
+
+                },
+            },
+            marginBottom: 120,
             type: 'pie'
         },
         title: {
             text: title
         },
         tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            pointFormat: '<b>{point.percentage:.2f}%</b>'
         },
         plotOptions: {
             pie: {
@@ -102,7 +130,7 @@ function createPieChart(chartId, response = {}, title = "Memuat data grafik . . 
                 cursor: 'pointer',
                 dataLabels: {
                     enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    format: '<b>{point.name}</b> <br>Perolehan suara: {point.percentage:.2f} %',
                     style: {
                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                     }
@@ -140,6 +168,7 @@ $(document).ready(function () {
     })
 
     requestJson("/api/pemilu2019/chart/total", function (response) {
+        console.log(response)
         createPieChart("accumulation_chart", response, response.title)
     })
 });

@@ -405,11 +405,14 @@ class PemiluChartTotalApiView(GenericAPIView):
         }
         response = {
             'title': 'HASIL HITUNG SUARA PEMILU PRESIDEN & WAKIL PRESIDEN RI 2019 (sumber : <a href="https://pemilu2019.kpu.go.id/">https://pemilu2019.kpu.go.id/</a>)',
-            'series': {
-                'name': '',
+            'process_tps': obj.process_tps,
+            'total_tps': obj.total_tps,
+            'percentage_tps': '%.5f' % obj.percentage_tps,
+            'series': [{
+                'name': 'SUARA',
                 'colorByPoint': True,
-                'data': [paslon_nolsatu_data, paslon_noldua_data]
-            },
+                'data': [paslon_noldua_data, paslon_nolsatu_data]
+            }],
         }
 
         return Response(

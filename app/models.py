@@ -10,7 +10,10 @@ class TimeCrawling(models.Model):
     time_server = models.CharField(max_length=45)
     total_nolsatu = models.FloatField(default=0)
     total_noldua = models.FloatField(default=0)
-    total = models.FloatField(default=0)
+    total_suara = models.FloatField(default=0)
+    total_tps = models.FloatField(default=0)
+    process_tps = models.FloatField(default=0)
+    percentage_tps = models.FloatField(default=0)
     create_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     modify_at = models.DateTimeField(auto_now_add=False, auto_now=True)
 
@@ -22,7 +25,8 @@ class TimeCrawling(models.Model):
         ordering = ['-time_server']
 
     def save(self, *args, **kwargs):
-        self.total = self.total_nolsatu + self.total_noldua
+        self.total_suara = self.total_nolsatu + self.total_noldua
+        self.percentage_tps = (self.process_tps + self.total_tps) / 100 if self.total_tps != 0 else 0
         super(TimeCrawling, self).save(*args, **kwargs)
 
 
