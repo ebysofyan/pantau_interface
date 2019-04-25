@@ -144,14 +144,15 @@ class PemiluChartRangeApiView(GenericAPIView):
         queryset = {x.time_server: x for x in queryset}
         for k, q in queryset.items():
             for cat in tp_categories:
+                chart_data = [float(v.value1) if cat == '01' else float(v.value2) for v in q.votings.all().order_by('region')]
                 series.append({
-                    'name': f"Waktu server pantau : \
-                        {q.create_at.strftime('%Y-%m-%d %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
+                    'server_date': f"Waktu server pantau : <b>{q.create_at.strftime('%Y-%m-%d %H:%M:%S')}</b>",
+                    'kpu_ts': f"Waktu server KPU : <b>{q.time_server}</b>",
                     'showInLegend': False,
                     'stacking': True,
                     'stack': cat,
-                    'data': [float(v.value1) if cat == '01' else float(v.value2)
-                             for v in q.votings.all().order_by('region')]
+                    'data': chart_data,
+                    'main_data': chart_data
                 })
 
         series_data_1 = []
@@ -177,7 +178,8 @@ class PemiluChartRangeApiView(GenericAPIView):
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series,
-            'total_title': 'Pertambahan suara'
+            'total_title': 'Pertambahan suara',
+            'total_main_title': 'Total suara paslon'
         }
 
     def get(self, request):
@@ -259,14 +261,17 @@ class PemiluChartRangeMergeApiView(GenericAPIView):
         queryset = {x.time_server: x for x in queryset}
         for k, q in queryset.items():
             for cat in tp_categories:
+                qs_by_region = q.votings.all().order_by('region')
                 series.append({
-                    'name': f"Waktu server pantau : \
-                        {q.create_at.strftime('%Y-%m-%d %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
+                    'server_date': f"Waktu server pantau : <b>{q.create_at.strftime('%Y-%m-%d %H:%M:%S')}</b>",
+                    'kpu_ts': f"Waktu server KPU : <b>{q.time_server}</b>",
                     'showInLegend': False,
                     'stacking': True,
                     'stack': cat,
-                    'data': [float(v.value1) if cat == '01' else float(v.value2)
-                             for v in q.votings.all().order_by('region')]
+                    'data': [float(v.value1) if cat == '01' else float(v.value2) for v in qs_by_region],
+                    'nolsatu_data': [float(v.value1) for v in qs_by_region],
+                    'noldua_data': [float(v.value2) for v in qs_by_region],
+                    'main_data': [float(v.value1) + float(v.value2) for v in qs_by_region]
                 })
 
         series_data_1 = []
@@ -294,7 +299,8 @@ class PemiluChartRangeMergeApiView(GenericAPIView):
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series,
-            'total_title': 'Total Pertambahan suara'
+            'total_title': 'Total pertambahan suara',
+            'total_main_title': 'Total gabungan suara'
         }
 
     def get(self, request):
@@ -346,8 +352,8 @@ class PemiluChartAccumulationApiView(GenericAPIView):
         for k, q in queryset.items():
             for cat in tp_categories:
                 series.append({
-                    'name': f"Waktu server pantau : \
-                        {q.create_at.strftime('%Y-%m-%d %H:%M:%S')} <br/>Waktu server KPU : {q.time_server}",
+                    'server_date': f"Waktu server pantau : <b>{q.create_at.strftime('%Y-%m-%d %H:%M:%S')}</b>",
+                    'kpu_ts': f"Waktu server KPU : <b>{q.time_server}</b>",
                     'showInLegend': False,
                     'stacking': True,
                     'stack': cat,

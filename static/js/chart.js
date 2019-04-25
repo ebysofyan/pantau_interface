@@ -30,10 +30,25 @@ function createChart(chartId, response = {}, title = "Memuat data grafik . . .")
 
         tooltip: {
             formatter: function () {
-                let total_title = typeof response.total_title === 'undefined' ? "" : response.total_title
-                return '<b>' + this.x + ' ' + this.series.options.stack + '</b><br/>'
-                    + this.series.name + '<br/>'
-                    + '<p><b>' + total_title + ' : ' + numberWithCommas(this.y) + '</p>' + '<br/>'
+                let idx = this.point.index
+                let total_title = typeof response.total_title === 'undefined' ? "" : '<p>' + response.total_title + ' : <b>' + numberWithCommas(this.y) + '</b></p><br/>'
+                let server_date = typeof this.series.options.server_date === 'undefined' ? [] : this.series.options.server_date
+                let kpu_ts = typeof this.series.options.kpu_ts === 'undefined' ? [] : this.series.options.kpu_ts
+                let nolsatu_data = typeof this.series.options.nolsatu_data === 'undefined' ? [] : this.series.options.nolsatu_data
+                let noldua_data = typeof this.series.options.noldua_data === 'undefined' ? [] : this.series.options.noldua_data
+                let main_data = typeof this.series.options.main_data === 'undefined' ? [] : this.series.options.main_data
+                let total_main_title = typeof response.total_main_title === 'undefined' ? "" : '<p>' + response.total_main_title + ' : <b>' + numberWithCommas(main_data[idx]) + '</b></p><br/>'
+
+                let nolsatu_data_format = nolsatu_data.length === 0 ? "" : '<p>Suara paslon 01' + ' : <b>' + numberWithCommas(nolsatu_data[idx]) + '</b></p><br/>'
+                let noldua_data_format = noldua_data.length === 0 ? "" : '<p>Suara paslon 02' + ' : <b>' + numberWithCommas(noldua_data[idx]) + '</b></p><br/>'
+
+                return '<p></p><b>' + this.x + ' ' + this.series.options.stack + '</b></p><br/><br/>'
+                    + '<p>' + server_date + '</p><br/>'
+                    + '<p>' + kpu_ts + '</p><br/><br/>'
+                    + nolsatu_data_format
+                    + noldua_data_format
+                    + total_main_title
+                    + total_title
             }
         },
 
