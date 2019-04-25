@@ -61,7 +61,7 @@ function createStackbarChart(chartId, response = {}, title = "Memuat data grafik
             }
         },
 
-        series: typeof response.series === 'undefined' ? [] : response.series
+        series: response.series || []
     };
 
     var onLegendClick = function (event) {
@@ -93,7 +93,10 @@ function createPieChart(chartId, response = {}, title = "Memuat data grafik . . 
             plotShadow: false,
             events: {
                 load: function () {
-                    var label = this.renderer.label(response.percentage_tps)
+                    let processTps = response.process_tps || 0
+                    let totalTps = response.total_tps || 0
+                    let textLabel = `Terproses ${numberWithCommas(processTps)} dari ${numberWithCommas(totalTps)} TPS <b>(${response.percentage_tps || 0}%)</b>`
+                    var label = this.renderer.label(textLabel)
                         .css({
                             width: '400px',
                             fontSize: '12px'

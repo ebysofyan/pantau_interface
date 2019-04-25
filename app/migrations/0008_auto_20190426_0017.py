@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('app', '0007_auto_20190425_2337'),
     ]
-
+    
     operations = [
         migrations.AddField(
             model_name='timecrawling',
