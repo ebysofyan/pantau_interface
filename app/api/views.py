@@ -100,7 +100,7 @@ class PemiluChartRangeApiView(GenericAPIView):
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:35]
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:25]
 
     def separate_series(self, data):
         series_1 = []
@@ -216,7 +216,7 @@ class PemiluChartRangeMergeApiView(GenericAPIView):
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:35]
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:25]
 
     def separate_series(self, data):
         series_1 = []
@@ -337,7 +337,7 @@ class PemiluChartAccumulationApiView(GenericAPIView):
                 self.get_start_date(start),
                 self.get_end_date(end),
             ])
-        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:35]
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:25]
 
     def formatter(self, queryset):
         bt_categories = []
