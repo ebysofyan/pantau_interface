@@ -8,6 +8,8 @@ class TimeCrawling(models.Model):
     Time Crawling
     """
     time_server = models.CharField(max_length=45)
+    total_nolsatu = models.CharField(max_length=100, default='0')
+    total_noldua = models.CharField(max_length=100, default='0')
     create_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     modify_at = models.DateTimeField(auto_now_add=False, auto_now=True)
 
