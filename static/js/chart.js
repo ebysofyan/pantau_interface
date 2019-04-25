@@ -93,7 +93,7 @@ function createPieChart(chartId, response = {}, title = "Memuat data grafik . . 
             plotShadow: false,
             events: {
                 load: function () {
-                    var label = this.renderer.label("Progress")
+                    var label = this.renderer.label(response.percentage_tps)
                         .css({
                             width: '400px',
                             fontSize: '12px'

@@ -26,7 +26,7 @@ class TimeCrawling(models.Model):
 
     def save(self, *args, **kwargs):
         self.total_suara = self.total_nolsatu + self.total_noldua
-        self.percentage_tps = (self.process_tps + self.total_tps) / 100 if self.total_tps != 0 else 0
+        self.percentage_tps = (self.process_tps / self.total_tps) * 100 if self.total_tps != 0 else 0
         super(TimeCrawling, self).save(*args, **kwargs)
 
 
