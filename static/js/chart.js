@@ -109,7 +109,7 @@ function createPieChart(chartId, response = {}, title = "Memuat data grafik . . 
                 }
             }
         },
-        series: response.series
+        series: typeof response.series === 'undefined' ? [] : response.series
     })
 }
 
@@ -129,7 +129,7 @@ $(document).ready(function () {
     createStackbarChart("#range_chart")
     createStackbarChart("#range_merge_chart")
 
-    createPieChart("#accumulation_chart")
+    createPieChart("accumulation_chart")
 
     requestJson("/api/pemilu2019/chart/range", function (response) {
         createStackbarChart("#range_chart", response, response.title)

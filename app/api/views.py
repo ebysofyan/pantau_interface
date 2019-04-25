@@ -396,15 +396,15 @@ class PemiluChartTotalApiView(GenericAPIView):
         paslon_nolsatu_data = {
             'name': "(01) Ir. H. JOKO WIDODO - Prof. Dr. (H.C) KH. MA'RUF AMIN",
             'y': obj.total_nolsatu,
-            'percentage': (obj.total_nolsatu / obj.total) * 100
+            'percentage': (obj.total_nolsatu / obj.total) * 100 if obj.total != 0 else 0
         }
         paslon_noldua_data = {
             'name': "(02) H. PRABOWO SUBIANTO - SANDIAGA SALAHUDIN UNO",
             'y': obj.total_noldua,
-            'percentage': (obj.total_noldua / obj.total) * 100
+            'percentage': (obj.total_noldua / obj.total) * 100 if obj.total != 0 else 0
         }
         response = {
-            'title': 'HASIL HITUNG SUARA PEMILU PRESIDEN & WAKIL PRESIDEN RI 2019 (https://pemilu2019.kpu.go.id/)',
+            'title': 'HASIL HITUNG SUARA PEMILU PRESIDEN & WAKIL PRESIDEN RI 2019 (sumber : <a href="https://pemilu2019.kpu.go.id/">https://pemilu2019.kpu.go.id/</a>)',
             'series': {
                 'name': '',
                 'colorByPoint': True,
