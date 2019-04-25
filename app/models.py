@@ -8,8 +8,9 @@ class TimeCrawling(models.Model):
     Time Crawling
     """
     time_server = models.CharField(max_length=45)
-    total_nolsatu = models.CharField(max_length=100, default='0')
-    total_noldua = models.CharField(max_length=100, default='0')
+    total_nolsatu = models.FloatField(default=0)
+    total_noldua = models.FloatField(default=0)
+    total = models.FloatField(default=0)
     create_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     modify_at = models.DateTimeField(auto_now_add=False, auto_now=True)
 
@@ -19,6 +20,10 @@ class TimeCrawling(models.Model):
     class Meta:
         db_table = 'time_crawling'
         ordering = ['-time_server']
+
+    def save(self, *args, **kwargs):
+        self.total = self.total_nolsatu + self.total_noldua
+        super(TimeCrawling, self).save(*args, **kwargs)
 
 
 class Voting(models.Model):

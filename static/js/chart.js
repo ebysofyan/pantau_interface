@@ -2,7 +2,7 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function createChart(chartId, response = {}, title = "Memuat data grafik . . .") {
+function createStackbarChart(chartId, response = {}, title = "Memuat data grafik . . .") {
     var options = {
 
         chart: {
@@ -82,23 +82,64 @@ function createChart(chartId, response = {}, title = "Memuat data grafik . . .")
     $(chartId).highcharts(options);
 };
 
-function requestJson(chartId, url) {
-    createChart(chartId)
+function createPieChart(chartId, response = {}, title = "Memuat data grafik . . .") {
+    Highcharts.chart(chartId, {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: title
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: response.series
+    })
+}
 
+function requestJson(url, callback) {
     $.ajax({
         url: url,
         type: 'GET',
         async: true,
         dataType: "json",
         success: function (response) {
-
-            createChart(chartId, response, response.title)
+            callback(response)
         }
     });
 }
 
 $(document).ready(function () {
-    requestJson("#range_chart", "/api/pemilu2019/chart/range")
-    requestJson("#range_merge_chart", "/api/pemilu2019/chart/range/merge")
-    requestJson("#accumulation_chart", "/api/pemilu2019/chart/acc")
+    createStackbarChart("#range_chart")
+    createStackbarChart("#range_merge_chart")
+
+    createPieChart("#accumulation_chart")
+
+    requestJson("/api/pemilu2019/chart/range", function (response) {
+        createStackbarChart("#range_chart", response, response.title)
+    })
+
+    requestJson("/api/pemilu2019/chart/range/merge", function (response) {
+        createStackbarChart("#range_merge_chart", response, response.title)
+    })
+
+    requestJson("/api/pemilu2019/chart/total", function (response) {
+        createPieChart("accumulation_chart", response, response.title)
+    })
 });
