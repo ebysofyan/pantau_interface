@@ -105,20 +105,20 @@ function createPieChart(chartId, response = {}, title = "Memuat data grafik . . 
                             'stroke': 'black',
                             'stroke-width': 1,
                             'r': 2,
-                            'padding': 5
+                            'padding': 8
                         })
                         .add();
 
                     label.align(Highcharts.extend(label.getBBox(), {
                         align: 'center',
-                        x: 20, // offset
-                        verticalAlign: 'bottom',
-                        y: -20, // offset
+                        verticalAlign: 'top',
+                        y: 75, // offset
                     }), null, 'spacingBox');
 
                 },
             },
-            marginBottom: 120,
+            marginTop: 175,
+            marginBottom: 175,
             type: 'pie'
         },
         title: {
@@ -168,10 +168,13 @@ $(document).ready(function () {
 
     requestJson("/api/pemilu2019/chart/range/merge", function (response) {
         createStackbarChart("#range_merge_chart", response, response.title)
+
+        for (var serie of response.series) {
+            console.log(serie)
+        }
     })
 
     requestJson("/api/pemilu2019/chart/total", function (response) {
-        console.log(response)
         createPieChart("accumulation_chart", response, response.title)
     })
 });

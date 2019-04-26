@@ -295,7 +295,7 @@ class PemiluChartRangeMergeApiView(GenericAPIView):
         # newer_series = s1_new + s2_new
 
         return {
-            'title': 'Grafik pemantauan perkembangan suara SINTUNG KPU dari waktu ke waktu',
+            'title': 'Grafik Akumulatif pemantauan perkembangan suara SINTUNG KPU dari waktu ke waktu',
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series,
@@ -417,5 +417,125 @@ class PemiluChartTotalApiView(GenericAPIView):
 
         return Response(
             data=response,
+            status=status.HTTP_200_OK
+        )
+
+class PemiluChartRegionRangeMergeApiView(GenericAPIView):
+    def get_start_date(self, sdt):
+        return sdt.strftime('%Y-%m-%d') + ' 00:00'
+
+    def get_end_date(self, edt):
+        return edt.strftime('%Y-%m-%d') + ' 23:59'
+
+    def get_queryset(self):
+        if 'time' in self.request.GET:
+            param = self.request.GET['time']
+            start = date.today()
+            end = date.today()
+
+            if param == 'today':
+                pass
+            elif param == 'weeks':
+                start = start - timedelta(days=7)
+            elif param == 'month':
+                days = monthrange(start.year, start.month)
+                start = start - timedelta(days=days[1])
+            else:
+                raise Http404
+
+            return models.TimeCrawling.objects.distinct('time_server').filter(create_at__range=[
+                self.get_start_date(start),
+                self.get_end_date(end),
+            ])
+        return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:25]
+
+    def separate_series(self, data):
+        series_1 = []
+        series_2 = []
+        for s in series:
+            if s['stack'] == '01':
+                series_1.append(s['data'])
+            else:
+                series_2.append(s['data'])
+
+        return series_1, series_2
+
+    def series_substractor(self, series):
+        returden_list = []
+        data = sorted(series)
+        for i in range(len(data), 0, -1):
+            if i == 1:
+                n1 = np.array(data[i - 1]) - np.array(data[i - 1])
+            else:
+                n1 = np.array(data[i - 1]) - np.array(data[i - 1 - 1])
+            returden_list.append(n1.tolist())
+        return returden_list
+
+    def reformat_data(self, old_series, new_series):
+        new_s = []
+        for i, s in enumerate(old_series):
+            s['data'] = new_series[i]
+            s['stack'] = ''
+            new_s.append(s)
+        return new_s
+
+    def formatter(self, queryset):
+        bt_categories = []
+        series = []
+        range_series = []
+
+        for (_, name) in REGION_LIST:
+            bt_categories.append(name)
+
+        tp_categories = ['01', '02']
+
+        queryset = {x.time_server: x for x in queryset}
+        for k, q in queryset.items():
+            for cat in tp_categories:
+                qs_by_region = q.votings.all().order_by('region')
+                series.append({
+                    'server_date': f"Waktu server pantau : <b>{q.create_at.strftime('%Y-%m-%d %H:%M:%S')}</b>",
+                    'kpu_ts': f"Waktu server KPU : <b>{q.time_server}</b>",
+                    'showInLegend': False,
+                    'stacking': True,
+                    'stack': cat,
+                    'data': [float(v.value1) if cat == '01' else float(v.value2) for v in qs_by_region],
+                    'nolsatu_data': [float(v.value1) for v in qs_by_region],
+                    'noldua_data': [float(v.value2) for v in qs_by_region],
+                    'main_data': [float(v.value1) + float(v.value2) for v in qs_by_region]
+                })
+
+        series_data_1 = []
+        series_data_2 = []
+        series_1, series_2 = [], []
+        for s in series:
+            if s['stack'] == '01':
+                series_1.append(s)
+                series_data_1.append(s['data'])
+            else:
+                series_2.append(s)
+                series_data_2.append(s['data'])
+
+        series_data_11 = self.series_substractor(series_data_1)
+        series_data_22 = self.series_substractor(series_data_2)
+
+        series_data_33 = np.array(series_data_11, dtype='int32') + np.array(series_data_22, dtype='int32')
+
+        newer_series = self.reformat_data(series_1, series_data_33.tolist())
+        # s2_new = self.reformat_data(series_2, series_data_22)
+        # newer_series = s1_new + s2_new
+
+        return {
+            'title': 'Grafik Akumulatif pemantauan perkembangan suara SINTUNG KPU dari waktu ke waktu',
+            'bt_categories': sorted(bt_categories),
+            'tp_categories': tp_categories * len(bt_categories),
+            'series': newer_series,
+            'total_title': 'Total pertambahan suara',
+            'total_main_title': 'Total gabungan suara'
+        }
+
+    def get(self, request):
+        return Response(
+            data=self.formatter(self.get_queryset()),
             status=status.HTTP_200_OK
         )
