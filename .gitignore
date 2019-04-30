@@ -1,4 +1,6 @@
 # Byte-compiled / optimized / DLL files
+start_server
+
 __pycache__/
 *.py[cod]
 *$py.class

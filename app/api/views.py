@@ -420,33 +420,10 @@ class PemiluChartTotalApiView(GenericAPIView):
             status=status.HTTP_200_OK
         )
 
-class PemiluChartRegionRangeMergeApiView(GenericAPIView):
-    def get_start_date(self, sdt):
-        return sdt.strftime('%Y-%m-%d') + ' 00:00'
 
-    def get_end_date(self, edt):
-        return edt.strftime('%Y-%m-%d') + ' 23:59'
+class PemiluChartRegionRangeMergeByRegionApiView(GenericAPIView):
 
     def get_queryset(self):
-        if 'time' in self.request.GET:
-            param = self.request.GET['time']
-            start = date.today()
-            end = date.today()
-
-            if param == 'today':
-                pass
-            elif param == 'weeks':
-                start = start - timedelta(days=7)
-            elif param == 'month':
-                days = monthrange(start.year, start.month)
-                start = start - timedelta(days=days[1])
-            else:
-                raise Http404
-
-            return models.TimeCrawling.objects.distinct('time_server').filter(create_at__range=[
-                self.get_start_date(start),
-                self.get_end_date(end),
-            ])
         return models.TimeCrawling.objects.order_by('-time_server').distinct().all()[:25]
 
     def separate_series(self, data):
@@ -483,19 +460,20 @@ class PemiluChartRegionRangeMergeApiView(GenericAPIView):
         bt_categories = []
         series = []
         range_series = []
-
-        for (_, name) in REGION_LIST:
-            bt_categories.append(name)
+        region_code = self.request.GET['code']
+        for (code, name) in REGION_LIST:
+            if code == region_code:
+                bt_categories.append(name)
 
         tp_categories = ['01', '02']
 
-        queryset = {x.time_server: x for x in queryset}
+        queryset = {x['time_server']: x for x in queryset}
         for k, q in queryset.items():
             for cat in tp_categories:
-                qs_by_region = q.votings.all().order_by('region')
+                qs_by_region = q['votings']
                 series.append({
-                    'server_date': f"Waktu server pantau : <b>{q.create_at.strftime('%Y-%m-%d %H:%M:%S')}</b>",
-                    'kpu_ts': f"Waktu server KPU : <b>{q.time_server}</b>",
+                    'server_date': f"Waktu server pantau : <b>{q['create_at'].strftime('%Y-%m-%d %H:%M:%S')}</b>",
+                    'kpu_ts': f"Waktu server KPU : <b>{q['time_server']}</b>",
                     'showInLegend': False,
                     'stacking': True,
                     'stack': cat,
@@ -526,7 +504,8 @@ class PemiluChartRegionRangeMergeApiView(GenericAPIView):
         # newer_series = s1_new + s2_new
 
         return {
-            'title': 'Grafik Akumulatif pemantauan perkembangan suara SINTUNG KPU dari waktu ke waktu',
+            'title': bt_categories[0],
+            'target': self.request.GET['target'],
             'bt_categories': sorted(bt_categories),
             'tp_categories': tp_categories * len(bt_categories),
             'series': newer_series,
@@ -535,7 +514,18 @@ class PemiluChartRegionRangeMergeApiView(GenericAPIView):
         }
 
     def get(self, request):
+        region_code = self.request.GET['code']
+        data = []
+        for tc in self.get_queryset():
+            obj = {
+                'create_at': tc.create_at,
+                'time_server': tc.time_server,
+            }
+            for vote in tc.votings.filter(code=region_code):
+                obj['votings'] = [vote]
+            data.append(obj)
+
         return Response(
-            data=self.formatter(self.get_queryset()),
+            data=self.formatter(data),
             status=status.HTTP_200_OK
         )

@@ -1,5 +1,47 @@
+const regions = [
+    ['1', 'ACEH'],
+    ['6728', 'SUMATERA UTARA'],
+    ['12920', 'SUMATERA BARAT'],
+    ['14086', 'RIAU'],
+    ['15885', 'JAMBI'],
+    ['17404', 'SUMATERA SELATAN'],
+    ['20802', 'BENGKULU'],
+    ['22328', 'LAMPUNG'],
+    ['24993', 'KEPULAUAN BANGKA BELITUNG'],
+    ['25405', 'KEPULAUAN RIAU'],
+    ['25823', 'DKI JAKARTA'],
+    ['26141', 'JAWA BARAT'],
+    ['32676', 'JAWA TENGAH'],
+    ['41863', 'DAERAH ISTIMEWA YOGYAKARTA'],
+    ['42385', 'JAWA TIMUR'],
+    ['51578', 'BANTEN'],
+    ['53241', 'BALI'],
+    ['54020', 'NUSA TENGGARA BARAT'],
+    ['55065', 'NUSA TENGGARA TIMUR'],
+    ['58285', 'KALIMANTAN BARAT'],
+    ['60371', 'KALIMANTAN TENGAH'],
+    ['61965', 'KALIMANTAN SELATAN'],
+    ['64111', 'KALIMANTAN TIMUR'],
+    ['65702', 'SULAWESI UTARA'],
+    ['67393', 'SULAWESI TENGAH'],
+    ['69268', 'SULAWESI SELATAN'],
+    ['72551', 'SULAWESI TENGGARA'],
+    ['74716', 'GORONTALO'],
+    ['75425', 'SULAWESI BARAT'],
+    ['76096', 'MALUKU'],
+    ['77085', 'MALUKU UTARA'],
+    ['78203', 'PAPUA'],
+    ['81877', 'PAPUA BARAT'],
+    ['928068', 'KALIMANTAN UTARA'],
+    ['-99', '+Luar Negeri']
+]
+
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function format_name_to_id(name) {
+    return name.replace(/[^A-Z0-9]+/ig, "").toLowerCase()
 }
 
 function createStackbarChart(chartId, response = {}, title = "Memuat data grafik . . .") {
@@ -53,6 +95,9 @@ function createStackbarChart(chartId, response = {}, title = "Memuat data grafik
         },
 
         plotOptions: {
+            series:{
+                maxPointWidth: 15
+            },
             column: {
                 stacking: 'normal'
             },
@@ -168,13 +213,16 @@ $(document).ready(function () {
 
     requestJson("/api/pemilu2019/chart/range/merge", function (response) {
         createStackbarChart("#range_merge_chart", response, response.title)
-
-        for (var serie of response.series) {
-            console.log(serie)
-        }
     })
 
     requestJson("/api/pemilu2019/chart/total", function (response) {
         createPieChart("accumulation_chart", response, response.title)
     })
+
+    for (reg of regions) {
+        createStackbarChart(`#${format_name_to_id(reg[1])}`)
+        requestJson(`/api/pemilu2019/chart/range/region?code=${reg[0]}&target=${format_name_to_id(reg[1])}`, function (response) {
+            createStackbarChart(`#${response.target}`, response, response.title)
+        })
+    }
 });

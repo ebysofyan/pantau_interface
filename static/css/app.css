@@ -6,9 +6,18 @@
  * Made By MaterializeCSS.com
  */
 
- .icon-block {
-    padding: 0 15px;
-  }
-  .icon-block .material-icons {
-      font-size: inherit;
-  }
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+  font-size: inherit;
+}
+
+/*
+@media (min-width: 768px) { 
+}
+@media (min-width: 992px) { 
+}
+@media (min-width: 1200px) { 
+}
+*/
